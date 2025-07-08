@@ -1,203 +1,100 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const videoUrlInput = document.getElementById('video-url');
-    const subtitleFileInput = document.getElementById('subtitle-file');
-    const loadButton = document.getElementById('load-button');
-    const videoElement = document.getElementById('my-video');
-    
-    // کنترل‌های زیرنویس
-    const subDirectionSelect = document.getElementById('sub-direction');
-    const subColorSelect = document.getElementById('sub-color-select');
-    const subColorCustom = document.getElementById('sub-color-custom');
-    const subBgColorSelect = document.getElementById('sub-bg-color');
-    const fontSizeSlider = document.getElementById('sub-font-size');
-    const fontSizeValueSpan = document.getElementById('font-size-value');
-    const fileNameSpan = document.getElementById('file-name');
+:root {
+    --sub-text-color: #FFFFFF;
+    --sub-bg-color: rgba(0, 0, 0, 0.7);
+    --sub-direction: rtl;
+    --sub-font-size: 22px; /* متغیر جدید برای اندازه فونت */
+}
 
-    let player;
-    let originalSpeed = 1;
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+    margin: 0;
+    padding: 20px;
+    direction: rtl;
+    line-height: 1.6;
+}
 
-    // --- رویدادهای اصلی ---
-    loadButton.addEventListener('click', loadVideo);
-    subtitleFileInput.addEventListener('change', loadSubtitle);
+.container {
+    max-width: 900px;
+    margin: 20px auto;
+    background-color: #2c2c2c;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    border: 1px solid #444;
+}
 
-    function loadVideo() {
-        const videoUrl = videoUrlInput.value.trim();
-        if (!videoUrl) {
-            alert('لطفاً لینک ویدیو را وارد کنید.');
-            return;
-        }
+h1, h2 {
+    text-align: center;
+    color: #ffffff;
+    font-weight: 600;
+}
 
-        // اگر پلیری وجود دارد، آن را از بین ببر
-        if (player) {
-            player.destroy();
-        }
+h1 { font-size: 2rem; margin-bottom: 10px; }
+h2 { font-size: 1.5rem; margin-top: 30px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #444; }
 
-        const videoType = videoUrl.endsWith('.m3u8') ? 'application/x-mpegURL' : 'video/mp4';
-        
-        // پشتیبانی از HLS.js برای فایل‌های m3u8
-        if (Hls.isSupported() && videoType === 'application/x-mpegURL') {
-            const hls = new Hls();
-            hls.loadSource(videoUrl);
-            hls.attachMedia(videoElement);
-            window.hls = hls;
-        } else {
-             videoElement.src = videoUrl;
-        }
+p { text-align: center; color: #a0a0a0; margin-bottom: 40px; font-size: 1.1rem; }
 
-        // مقداردهی اولیه Plyr
-        initializePlyr();
-        player.play();
-    }
-    
-    function initializePlyr() {
-        player = new Plyr(videoElement, {
-            captions: { active: true, update: true, language: 'auto' },
-            settings: ['captions', 'quality', 'speed', 'loop'],
-            speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2, 4] },
-            keyboard: { focused: true, global: true },
-            tooltips: { controls: true, seek: true },
-            // فعال‌سازی ژست‌های لمسی برای جلو/عقب بردن
-            listeners: {
-                seek: true // This is not a standard Plyr option, gestures are built-in.
-            }
-        });
-        
-        // اضافه کردن رویدادهای سفارشی به پلیر
-        addCustomPlayerEvents();
-    }
-    
-    function loadSubtitle() {
-        if (!player) {
-            alert('ابتدا ویدیو را پخش کنید و سپس زیرنویس را اضافه نمایید.');
-            return;
-        }
-        
-        const subtitleFile = subtitleFileInput.files[0];
-        if (!subtitleFile) return;
+.input-section { display: flex; flex-direction: column; gap: 20px; margin-bottom: 40px; }
+.input-group label { margin-bottom: 8px; font-weight: 500; color: #c0c0c0; display: block; }
 
-        fileNameSpan.textContent = `فایل انتخاب شده: ${subtitleFile.name}`;
-        fileNameSpan.style.color = '#e0e0e0';
+input[type="url"], select {
+    width: 100%; padding: 12px; background-color: #3b3b3b;
+    border: 1px solid #555; color: #e0e0e0; border-radius: 8px; box-sizing: border-box; font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+input[type="url"]:focus, select:focus { outline: none; border-color: #4dabf7; box-shadow: 0 0 0 3px rgba(77, 171, 247, 0.3); }
 
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            let fileContent = event.target.result;
-            const fileExtension = subtitleFile.name.split('.').pop().toLowerCase();
+.custom-file-upload input[type="file"] { display: none; }
+.custom-file-upload .file-label {
+    display: block; padding: 12px; background-color: #3b3b3b;
+    border: 1px solid #555; border-radius: 8px; cursor: pointer; text-align: right; transition: background-color 0.3s;
+}
+.custom-file-upload .file-label:hover { background-color: #4a4a4a; }
+#file-name { color: #c0c0c0; }
 
-            if (fileExtension === 'srt') {
-                fileContent = srtToVtt(fileContent);
-            }
+#load-button {
+    padding: 14px 20px; background: linear-gradient(90deg, #4dabf7, #2a6db5); color: white;
+    border: none; border-radius: 8px; cursor: pointer; font-size: 1.1rem; font-weight: 600;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+#load-button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(77, 171, 247, 0.2); }
 
-            const subtitleBlob = new Blob([fileContent], { type: 'text/vtt' });
-            const subtitleUrl = URL.createObjectURL(subtitleBlob);
+#player-container { width: 100%; margin-bottom: 30px; }
 
-            // حذف ترک‌های زیرنویس قبلی
-            const oldTracks = player.media.querySelectorAll('track');
-            oldTracks.forEach(track => track.remove());
+/* استایل‌های کنترل‌های زیرنویس */
+.controls-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; align-items: end; }
+.control-group { display: flex; flex-direction: column; }
+.control-group.font-size-control { grid-column: 1 / -1; } /* اسلایدر تمام عرض را بگیرد */
+.control-group label { font-size: 0.9rem; }
+.hidden { display: none; }
+input[type="color"] { width: 100%; height: 48px; padding: 5px; border-radius: 8px; border: 1px solid #555; cursor: pointer; margin-top: 8px; }
 
-            // اضافه کردن ترک جدید به صورت داینامیک
-            const trackElement = document.createElement('track');
-            trackElement.kind = 'captions';
-            trackElement.label = subtitleFile.name.replace(/\.[^/.]+$/, "");
-            trackElement.srclang = 'fa';
-            trackElement.src = subtitleUrl;
-            trackElement.default = true;
-            
-            player.media.appendChild(trackElement);
-            
-            // فعال‌سازی زیرنویس
-            player.captions.toggled = true;
-        };
-        reader.readAsText(subtitleFile, 'UTF-8');
-    }
+/* استایل اسلایدر اندازه فونت */
+.font-size-slider {
+    width: 100%; -webkit-appearance: none; appearance: none;
+    height: 8px; background: #555; border-radius: 5px; outline: none; transition: opacity .2s;
+}
+.font-size-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 20px; height: 20px;
+    background: #4dabf7; cursor: pointer; border-radius: 50%;
+}
+.font-size-slider::-moz-range-thumb {
+    width: 20px; height: 20px; background: #4dabf7; cursor: pointer; border-radius: 50%; border: none;
+}
 
-    // --- قابلیت‌های اضافی ---
 
-    function addCustomPlayerEvents() {
-        const container = player.elements.container;
-
-        // قابلیت: نگه داشتن موس/انگشت برای پخش سریع
-        container.addEventListener('mousedown', handleFastForward);
-        container.addEventListener('touchstart', handleFastForward, { passive: true });
-        
-        container.addEventListener('mouseup', handleNormalSpeed);
-        container.addEventListener('mouseleave', handleNormalSpeed);
-        container.addEventListener('touchend', handleNormalSpeed);
-        container.addEventListener('touchcancel', handleNormalSpeed);
-        
-        // قابلیت: دو بار ضربه برای جلو/عقب بردن (در Plyr به صورت داخلی وجود دارد)
-        // Plyr به طور پیش‌فرض از دو بار ضربه در موبایل پشتیبانی می‌کند.
-        // همچنین با کلیدهای چپ/راست 5 ثانیه جابجا می‌شود. می‌توانیم این مقدار را تغییر دهیم:
-        player.on('ready', () => {
-             player.elements.container.addEventListener('keydown', (e) => {
-                if (e.key === 'ArrowLeft') {
-                    e.preventDefault();
-                    player.rewind(10);
-                } else if (e.key === 'ArrowRight') {
-                    e.preventDefault();
-                    player.forward(10);
-                }
-            });
-        });
-    }
-
-    function handleFastForward(e) {
-        // فقط اگر روی خود ویدیو کلیک شد عمل کند نه روی کنترل‌ها
-        if (e.target !== player.elements.media) return;
-        originalSpeed = player.speed;
-        player.speed = 2;
-    }
-
-    function handleNormalSpeed() {
-        if(player.speed !== originalSpeed) {
-           player.speed = originalSpeed;
-        }
-    }
-    
-    function srtToVtt(srtText) {
-        let vttText = "WEBVTT\n\n";
-        srtText = srtText.replace(/\r+/g, '').replace(/^\s+|\s+$/g, '');
-        const cues = srtText.split('\n\n');
-        cues.forEach(cue => {
-            const parts = cue.split('\n');
-            if (parts.length >= 2 && parts[1].includes('-->')) {
-                const time = parts[1].replace(/,/g, '.');
-                const text = parts.slice(2).join('\n');
-                vttText += `${time}\n${text}\n\n`;
-            }
-        });
-        return vttText;
-    }
-
-    // --- منطق کنترل‌های استایل زیرنویس ---
-
-    // اندازه فونت
-    fontSizeSlider.addEventListener('input', (e) => {
-        const size = `${e.target.value}px`;
-        document.documentElement.style.setProperty('--sub-font-size', size);
-        fontSizeValueSpan.textContent = size;
-    });
-
-    // جهت متن
-    subDirectionSelect.addEventListener('change', (e) => {
-        document.documentElement.style.setProperty('--sub-direction', e.target.value);
-    });
-
-    // رنگ متن
-    subColorSelect.addEventListener('change', function() {
-        if (this.value === 'custom') {
-            subColorCustom.classList.remove('hidden');
-            subColorCustom.click();
-        } else {
-            subColorCustom.classList.add('hidden');
-            document.documentElement.style.setProperty('--sub-text-color', this.value);
-        }
-    });
-    subColorCustom.addEventListener('input', function() {
-        document.documentElement.style.setProperty('--sub-text-color', this.value);
-    });
-
-    // رنگ پس‌زمینه
-    subBgColorSelect.addEventListener('change', (e) => {
-        document.documentElement.style.setProperty('--sub-bg-color', e.target.value);
-    });
-});
+/* --- مهم: استایل‌دهی به زیرنویس با Plyr --- */
+/* این کد جایگزین کد قبلی شده و مشکل پس‌زمینه را حل می‌کند */
+#player-container ::-webkit-media-text-track-container {
+    direction: var(--sub-direction) !important;
+}
+#player-container ::cue {
+    background: var(--sub-bg-color) !important;
+    color: var(--sub-text-color) !important;
+    font-size: var(--sub-font-size) !important;
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    text-shadow: 1px 1px 2px black;
+}
