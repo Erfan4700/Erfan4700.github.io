@@ -1,12 +1,12 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // المان‌های اصلی
+    // المان‌های ورودی
     const videoUrlInput = document.getElementById('video-url');
     const subtitleFileInput = document.getElementById('subtitle-file');
     const loadButton = document.getElementById('load-button');
     const videoElement = document.getElementById('my-video');
     const fileNameSpan = document.getElementById('file-name');
 
-    // کنترل‌های زیرنویس
+    // المان‌های کنترل زیرنویس
     const subDirectionSelect = document.getElementById('sub-direction');
     const subColorSelect = document.getElementById('sub-color-select');
     const subColorCustom = document.getElementById('sub-color-custom');
@@ -15,16 +15,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const fontSizeValueSpan = document.getElementById('font-size-value');
 
     let player;
-    let originalSpeed = 1;
-    let hls; // برای مدیریت HLS
+    let hls;
+    let originalSpeed = 1; // برای ذخیره سرعت عادی ویدیو
 
-    // تنظیمات پیش‌فرض Plyr
-    const plyrOptions = {
-        captions: { active: true, update: true, language: 'auto' },
-        settings: ['captions', 'quality', 'speed', 'loop'],
-        speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 4] }
-    };
-
+    // --- راه‌اندازی پلیر Plyr ---
     function initializePlayer() {
         if (player) {
             player.destroy();
@@ -32,13 +26,23 @@ document.addEventListener('DOMContentLoaded', function() {
         if (hls) {
             hls.destroy();
         }
-        player = new Plyr(videoElement, plyrOptions);
-        setupPlayerEventListeners(); // اضافه کردن event listener های جدید
+
+        player = new Plyr(videoElement, {
+            // گزینه‌های Plyr
+            captions: { active: true, update: true, language: 'auto' },
+            speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 4] },
+            // فعال‌سازی میانبرهای کیبورد و کنترل‌های لمسی
+            keyboard: { focused: true, global: true },
+            tooltips: { controls: true, seek: true }
+        });
+
+        // اضافه کردن قابلیت "نگه داشتن برای پخش سریع"
+        addSpeedOnHold(player);
     }
 
-    loadButton.addEventListener('click', loadVideo);
+    loadButton.addEventListener('click', loadVideoAndSubtitle);
 
-    function loadVideo() {
+    function loadVideoAndSubtitle() {
         const videoUrl = videoUrlInput.value.trim();
         if (!videoUrl) {
             alert('لطفاً لینک ویدیو را وارد کنید.');
@@ -47,74 +51,69 @@ document.addEventListener('DOMContentLoaded', function() {
 
         initializePlayer();
 
-        if (Hls.isSupported() && videoUrl.endsWith('.m3u8')) {
-            hls = new Hls();
-            hls.loadSource(videoUrl);
-            hls.attachMedia(videoElement);
-            player.on('ready', () => player.play());
-        } else {
-            player.source = {
-                type: 'video',
-                sources: [{ src: videoUrl, type: 'video/mp4' }],
+        const subtitleFile = subtitleFileInput.files[0];
+        const tracks = [];
+
+        // آماده‌سازی زیرنویس برای بارگذاری
+        if (subtitleFile) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const fileContent = event.target.result;
+                const fileExtension = subtitleFile.name.split('.').pop().toLowerCase();
+                let vttContent;
+
+                if (fileExtension === 'srt') {
+                    vttContent = srtToVtt(fileContent);
+                } else if (fileExtension === 'vtt') {
+                    vttContent = fileContent;
+                } else {
+                    alert('فرمت زیرنویس پشتیبانی نمی‌شود. لطفاً از SRT یا VTT استفاده کنید.');
+                    return;
+                }
+
+                const subtitleBlob = new Blob([vttContent], { type: 'text/vtt' });
+                tracks.push({
+                    kind: 'subtitles',
+                    label: subtitleFile.name.replace(/\.[^/.]+$/, ""),
+                    src: URL.createObjectURL(subtitleBlob),
+                    srclang: 'fa',
+                    default: true,
+                });
+                
+                // بعد از خواندن فایل، منبع را تنظیم کن
+                setPlayerSource(videoUrl, tracks);
             };
-            player.play();
+            reader.readAsText(subtitleFile, 'UTF-8');
+        } else {
+             // اگر زیرنویسی نبود، فقط منبع ویدیو را تنظیم کن
+             setPlayerSource(videoUrl, []);
         }
     }
 
-    // *** قابلیت کلیدی: اضافه کردن زیرنویس در هر لحظه ***
-    subtitleFileInput.addEventListener('change', function() {
-        if (this.files.length === 0) {
-            fileNameSpan.textContent = 'انتخاب فایل...';
-            return;
-        }
-        
-        const subtitleFile = this.files[0];
-        fileNameSpan.textContent = subtitleFile.name;
-        fileNameSpan.style.color = '#e0e0e0';
-
-        if (!player) {
-             // اگر هنوز ویدیویی پخش نشده، فقط فایل را نمایش می‌دهیم
-            alert('ابتدا ویدیو را پخش کنید و سپس زیرنویس را اضافه نمایید.');
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const fileContent = event.target.result;
-            const fileExtension = subtitleFile.name.split('.').pop().toLowerCase();
-            let vttContent;
-
-            if (fileExtension === 'srt') {
-                vttContent = srtToVtt(fileContent);
-            } else if (fileExtension === 'vtt') {
-                vttContent = fileContent;
-            } else {
-                alert('فرمت زیرنویس پشتیبانی نمی‌شود (فقط SRT و VTT).');
-                return;
-            }
-
-            // حذف ترک‌های زیرنویس قبلی
-            const oldTracks = videoElement.querySelectorAll('track');
-            oldTracks.forEach(track => track.remove());
-            
-            // ساخت ترک جدید و اضافه کردن به ویدیو
-            const subtitleBlob = new Blob([vttContent], { type: 'text/vtt' });
-            const subtitleUrl = URL.createObjectURL(subtitleBlob);
-            
-            const trackElement = document.createElement('track');
-            trackElement.kind = 'captions';
-            trackElement.label = subtitleFile.name.replace(/\.[^/.]+$/, "");
-            trackElement.srclang = 'fa';
-            trackElement.src = subtitleUrl;
-            trackElement.default = true;
-            
-            videoElement.appendChild(trackElement);
-
-            // بروزرسانی Plyr برای شناسایی ترک جدید
-            player.captions.enable = true;
+    function setPlayerSource(videoUrl, tracks) {
+        const source = {
+            type: 'video',
+            sources: [
+                {
+                    src: videoUrl,
+                    type: videoUrl.endsWith('.m3u8') ? 'application/x-mpegURL' : 'video/mp4',
+                },
+            ],
+            tracks: tracks,
         };
-        reader.readAsText(subtitleFile, 'UTF-8');
-    });
+
+        // مدیریت پخش HLS
+        if (videoUrl.endsWith('.m3u8') && Hls.isSupported()) {
+            hls = new Hls();
+            hls.loadSource(videoUrl);
+            hls.attachMedia(videoElement);
+            window.hls = hls;
+        }
+
+        // به‌روزرسانی منبع پلیر
+        player.source = source;
+        player.play();
+    }
 
     function srtToVtt(srtText) {
         let vttText = "WEBVTT\n\n";
@@ -131,14 +130,22 @@ document.addEventListener('DOMContentLoaded', function() {
         return vttText;
     }
 
-    // --- منطق جدید برای کنترل‌های زیرنویس و پلیر ---
+    // --- منطق جدید برای کنترل‌های زیرنویس با استفاده از متغیرهای CSS ---
 
-    // جهت متن
+    subtitleFileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            fileNameSpan.textContent = this.files[0].name;
+            fileNameSpan.style.color = '#e0e0e0';
+        } else {
+            fileNameSpan.textContent = 'انتخاب فایل...';
+            fileNameSpan.style.color = '#c0c0c0';
+        }
+    });
+
     subDirectionSelect.addEventListener('change', (e) => {
         document.documentElement.style.setProperty('--sub-direction', e.target.value);
     });
 
-    // رنگ متن
     subColorSelect.addEventListener('change', function() {
         if (this.value === 'custom') {
             subColorCustom.classList.remove('hidden');
@@ -152,90 +159,38 @@ document.addEventListener('DOMContentLoaded', function() {
         document.documentElement.style.setProperty('--sub-text-color', this.value);
     });
 
-    // رنگ پس‌زمینه
     subBgColorSelect.addEventListener('change', (e) => {
         document.documentElement.style.setProperty('--sub-bg-color', e.target.value);
     });
-    
-    // *** اسلایدر اندازه فونت ***
-    subFontSizeSlider.addEventListener('input', function() {
-        const newSize = this.value;
-        fontSizeValueSpan.textContent = newSize;
+
+    subFontSizeSlider.addEventListener('input', (e) => {
+        const newSize = e.target.value;
         document.documentElement.style.setProperty('--sub-font-size', `${newSize}px`);
+        fontSizeValueSpan.textContent = newSize;
     });
 
-    // --- قابلیت‌های پیشرفته پلیر ---
-    function setupPlayerEventListeners() {
-        const playerContainer = player.elements.container;
-        let lastTap = 0;
+    // --- قابلیت "نگه داشتن برای پخش 2x" ---
+    function addSpeedOnHold(p) {
+        const playerContainer = p.elements.container;
 
-        // *** قابلیت نگه داشتن برای پخش سریع ***
-        playerContainer.addEventListener('mousedown', handleFastForwardStart);
-        playerContainer.addEventListener('touchstart', handleFastForwardStart, { passive: true });
-        
-        playerContainer.addEventListener('mouseup', handleFastForwardEnd);
-        playerContainer.addEventListener('mouseleave', handleFastForwardEnd);
-        playerContainer.addEventListener('touchend', handleFastForwardEnd);
-        
-        function handleFastForwardStart(e) {
-            // فقط روی خود ویدیو کار کند نه کنترل‌ها
-            if (e.target !== player.elements.media) return;
-            
-            if (player.playing) {
-                originalSpeed = player.speed;
-                player.speed = 2;
+        const startFastPlay = () => {
+            if (!p.paused && !p.ended) {
+                originalSpeed = p.speed;
+                p.speed = 2;
             }
-        }
-        
-        function handleFastForwardEnd() {
-            if (player.speed === 2) {
-                player.speed = originalSpeed;
+        };
+
+        const stopFastPlay = () => {
+            if (p.speed === 2) {
+                p.speed = originalSpeed;
             }
-        }
+        };
 
-        // *** قابلیت دو بار ضربه برای جلو/عقب بردن ***
-        playerContainer.addEventListener('touchend', (e) => {
-            // فقط روی خود ویدیو کار کند نه کنترل‌ها
-            if (e.target !== player.elements.media) return;
+        playerContainer.addEventListener('mousedown', startFastPlay);
+        playerContainer.addEventListener('touchstart', startFastPlay);
 
-            const currentTime = new Date().getTime();
-            const tapLength = currentTime - lastTap;
-            if (tapLength < 300 && tapLength > 0) { // 300ms window for double tap
-                const videoRect = player.elements.media.getBoundingClientRect();
-                const touchX = e.changedTouches[0].clientX;
-                const thirdOfWidth = videoRect.width / 3;
-
-                if (touchX < videoRect.left + thirdOfWidth) {
-                    player.rewind(10); // عقب
-                } else if (touchX > videoRect.right - thirdOfWidth) {
-                    player.forward(10); // جلو
-                }
-                e.preventDefault();
-                lastTap = 0; // Reset tap
-            } else {
-                lastTap = currentTime;
-            }
-        });
-        
-        // *** قابلیت جلو/عقب بردن با کیبورد ***
-        document.addEventListener('keydown', (e) => {
-            if (!player || !player.source) return; // اگر پلیر فعال نیست، کاری نکن
-            // مطمئن شویم که کاربر در حال تایپ در یک فیلد متنی نیست
-            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
-
-            if (e.key === 'ArrowRight') {
-                e.preventDefault();
-                player.forward(10);
-            } else if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                player.rewind(10);
-            }
-        });
+        playerContainer.addEventListener('mouseup', stopFastPlay);
+        playerContainer.addEventListener('mouseleave', stopFastPlay);
+        playerContainer.addEventListener('touchend', stopFastPlay);
     }
-
-    // اعمال مقدار اولیه CSS variables
-    document.documentElement.style.setProperty('--sub-direction', subDirectionSelect.value);
-    document.documentElement.style.setProperty('--sub-text-color', subColorSelect.value);
-    document.documentElement.style.setProperty('--sub-bg-color', subBgColorSelect.value);
-    document.documentElement.style.setProperty('--sub-font-size', `${subFontSizeSlider.value}px`);
 });
