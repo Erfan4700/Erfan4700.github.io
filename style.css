@@ -84,11 +84,20 @@ input[type="url"]:focus, select:focus {
 #player-container {
     width: 100%;
     margin-bottom: 30px;
+    /* قاب سیاه برای زمانی که ویدیو هنوز لود نشده */
+    background-color: #000;
+    border-radius: 8px;
 }
 
 /* استایل‌های سفارشی برای Plyr */
 :root {
     --plyr-color-main: #1e90ff;
+}
+
+/* --- مهم: بزرگ کردن فریم ویدیو --- */
+.plyr {
+    min-height: 480px; /* افزایش ارتفاع ویدیو */
+    border-radius: 8px; /* گرد کردن گوشه‌های پلیر */
 }
 
 /* --- مهم: حل مشکل پس‌زمینه و استایل زیرنویس --- */
@@ -99,18 +108,24 @@ input[type="url"]:focus, select:focus {
     font-size: var(--sub-font-size) !important;
     padding: 0.2em 0.5em;
     border-radius: 6px;
+    line-height: 1.5; /* بهبود خوانایی در چند خط */
 }
 
 /* کنترل‌های زیرنویس */
 .subtitle-controls {
     margin-top: 20px;
 }
+/* --- مهم: چیدمان جدید گرید --- */
 .controls-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: 1fr 1fr; /* ایجاد ساختار دو ستونی */
+    gap: 20px 25px; /* فاصله عمودی و افقی */
     align-items: end;
 }
+.control-group.full-width {
+    grid-column: 1 / -1; /* این آیتم دو ستون را اشغال می‌کند */
+}
+
 .control-group label { font-size: 0.9rem; }
 .hidden { display: none; }
 .color-picker-wrapper { display: flex; gap: 5px; }
@@ -161,6 +176,7 @@ input[type="color"] {
     opacity: 0.7;
     transition: opacity .2s;
     cursor: pointer;
+    margin-top: 8px;
 }
 .slider:hover { opacity: 1; }
 .slider::-webkit-slider-thumb {
