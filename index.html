@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پخش آنلاین ویدئو با Plyr</title>
+    <title>پخش آنلاین ویدیو با Plyr</title>
     <!-- Plyr CSS -->
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <!-- استایل‌های سفارشی -->
@@ -11,43 +11,37 @@
 </head>
 <body>
     <div class="container">
-        <h1>پخش آنلاین ویدئو</h1>
-        <p>لینک مستقیم ویدیو را وارد کرده و روی دکمه "پخش" کلیک کنید. زیرنویس را می‌توانید هر زمان اضافه کنید.</p>
+        <h1>پخش آنلاین ویدیو</h1>
+        <p>لینک مستقیم ویدیو و فایل زیرنویس را وارد کرده و روی دکمه "پخش" کلیک کنید.</p>
 
         <div class="input-section">
             <div class="input-group">
-                <label for="video-url">لینک مستقیم ویدئو (MP4, M3U8):</label>
+                <label for="video-url">لینک مستقیم ویدیو (MP4, M3U8):</label>
                 <input type="url" id="video-url" placeholder="https://example.com/video.mp4" dir="ltr">
             </div>
-            
-            <button id="load-button">پخش ویدئو</button>
+
+            <div class="input-group">
+                <label for="subtitle-file">فایل زیرنویس (SRT, VTT):</label>
+                <div class="custom-file-upload">
+                    <input type="file" id="subtitle-file" accept=".srt,.vtt">
+                    <label for="subtitle-file" class="file-label">
+                        <span id="file-name">انتخاب فایل...</span>
+                    </label>
+                </div>
+            </div>
+
+            <button id="load-button">پخش ویدیو</button>
         </div>
 
+        <!-- محفظه پلیر برای Plyr -->
         <div id="player-container">
-            <!-- این تگ ویدیو توسط Plyr کنترل خواهد شد -->
-            <video id="my-video" controls></video>
+            <video id="my-video" controls playsinline></video>
         </div>
 
         <!-- کنترل‌های جدید و مدرن برای زیرنویس -->
         <div class="subtitle-controls">
             <h2>تنظیمات زیرنویس</h2>
-            
-            <!-- دکمه آپلود فایل زیرنویس -->
-            <div class="input-group file-upload-group">
-                <label for="subtitle-file" class="file-label">
-                    <span id="file-name">برای افزودن یا تغییر زیرنویس کلیک کنید (SRT, VTT)</span>
-                </label>
-                <input type="file" id="subtitle-file" accept=".srt,.vtt">
-            </div>
-
-            <!-- چیدمان جدید کنترل‌ها -->
             <div class="controls-grid">
-                 <!-- اندازه فونت (تمام عرض) -->
-                <div class="control-group full-width">
-                    <label for="sub-font-size">اندازه فونت: <span id="font-size-value">22px</span></label>
-                    <input type="range" id="sub-font-size" min="14" max="40" value="22" class="slider">
-                </div>
-                 <!-- جهت و رنگ متن در یک ردیف -->
                 <div class="control-group">
                     <label for="sub-direction">جهت متن:</label>
                     <select id="sub-direction">
@@ -57,26 +51,27 @@
                 </div>
                 <div class="control-group">
                     <label for="sub-color-select">رنگ متن:</label>
-                    <div class="color-picker-wrapper">
-                        <select id="sub-color-select">
-                            <option value="#FFFFFF" selected>سفید</option>
-                            <option value="#FFFF00">زرد</option>
-                            <option value="#000000">مشکی</option>
-                            <option value="#FF0000">قرمز</option>
-                            <option value="custom">رنگ دلخواه...</option>
-                        </select>
-                        <input type="color" id="sub-color-custom" value="#FFFFFF" class="hidden">
-                    </div>
+                    <select id="sub-color-select">
+                        <option value="#FFFFFF" selected>سفید</option>
+                        <option value="#FFFF00">زرد</option>
+                        <option value="#000000">مشکی</option>
+                        <option value="custom">رنگ دلخواه...</option>
+                    </select>
+                    <input type="color" id="sub-color-custom" value="#FFFFFF" class="hidden">
                 </div>
-                 <!-- رنگ پس‌زمینه -->
                 <div class="control-group">
                     <label for="sub-bg-color">رنگ پس‌زمینه:</label>
                     <select id="sub-bg-color">
-                        <option value="transparent">شفاف</option>
-                        <option value="rgba(0, 0, 0, 0.75)" selected>مشکی شفاف</option>
+                        <option value="rgba(0, 0, 0, 0.7)" selected>مشکی شفاف</option>
+                        <option value="transparent">شفاف (بدون پس‌زمینه)</option>
                         <option value="rgba(0, 0, 0, 1)">مشکی</option>
                         <option value="rgba(255, 255, 255, 0.9)">سفید</option>
                     </select>
+                </div>
+                <!-- اسلایدر جدید برای اندازه فونت -->
+                <div class="control-group font-size-control">
+                    <label for="sub-font-size">اندازه فونت: <span id="font-size-value">22</span>px</label>
+                    <input type="range" id="sub-font-size" min="14" max="40" value="22" class="font-size-slider">
                 </div>
             </div>
         </div>
