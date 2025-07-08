@@ -1,0 +1,120 @@
+:root {
+    --sub-text-color: #FFFFFF;
+    --sub-bg-color: transparent;
+    --sub-direction: rtl;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    direction: rtl;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #1a73e8;
+}
+
+p {
+    text-align: center;
+    color: #5f6368;
+    margin-bottom: 30px;
+}
+
+.input-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #3c4043;
+}
+
+input[type="url"], input[type="file"], select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+input[type="url"] {
+    direction: ltr;
+    text-align: left;
+}
+
+#load-button {
+    padding: 12px 20px;
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+#load-button:hover {
+    background-color: #1558b3;
+}
+
+#player-container {
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.video-js {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 400px;
+}
+
+.subtitle-controls {
+    border-top: 1px solid #e0e0e0;
+    padding-top: 20px;
+}
+
+.subtitle-controls h2 {
+    margin-top: 0;
+    text-align: center;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.control-group label {
+    flex-shrink: 0;
+}
+
+/* استایل‌دهی به زیرنویس با استفاده از متغیرهای CSS */
+#my-video::cue {
+    color: var(--sub-text-color) !important;
+    background-color: var(--sub-bg-color) !important;
+    direction: var(--sub-direction) !important;
+    unicode-bidi: embed;
+}

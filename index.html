@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پخش آنلاین ویدیو</title>
+    <!-- Video.js CSS -->
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <!-- استایل‌های سفارشی -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>پخش آنلاین ویدیو با زیرنویس</h1>
+        <p>لینک مستقیم ویدیو و فایل زیرنویس را وارد کرده و روی دکمه "پخش" کلیک کنید.</p>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="video-url">لینک مستقیم ویدیو (MP4, TS, MKV):</label>
+                <input type="url" id="video-url" placeholder="https.example.com/video.mp4" dir="ltr">
+            </div>
+            <div class="input-group">
+                <label for="subtitle-file">فایل زیرنویس (SRT, VTT, ASS):</label>
+                <input type="file" id="subtitle-file" accept=".srt,.vtt,.ass">
+            </div>
+            <button id="load-button">پخش ویدیو</button>
+        </div>
+
+        <div id="player-container">
+            <video id="my-video" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" width="640" height="360">
+            </video>
+        </div>
+
+        <div class="subtitle-controls">
+            <h2>تنظیمات زیرنویس</h2>
+            <div class="control-group">
+                <label for="sub-direction">جهت متن:</label>
+                <select id="sub-direction">
+                    <option value="rtl" selected>راست به چپ</option>
+                    <option value="ltr">چپ به راست</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="sub-color">رنگ متن:</label>
+                <input type="color" id="sub-color" value="#FFFFFF">
+            </div>
+            <div class="control-group">
+                <label for="sub-bg-color">رنگ پس‌زمینه:</label>
+                <select id="sub-bg-color">
+                    <option value="transparent" selected>بدون پس‌زمینه</option>
+                    <option value="rgba(255, 255, 255, 0.8)">سفید</option>
+                    <option value="rgba(0, 0, 0, 0.8)">مشکی</option>
+                    <option value="rgba(0, 0, 0, 0.5)">مشکی کم‌رنگ</option>
+                </select>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Video.js JS -->
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    <!-- Video.js plugin for HLS (for .ts files) -->
+    <script src="https://unpkg.com/videojs-contrib-hls/dist/videojs-contrib-hls.js"></script>
+    <!-- Video.js plugin for .ass subtitles -->
+    <script src="https://cdn.jsdelivr.net/npm/videojs-ass/dist/videojs-ass.min.js"></script>
+    <!-- اسکریپت سفارشی -->
+    <script src="script.js"></script>
+</body>
+</html>
