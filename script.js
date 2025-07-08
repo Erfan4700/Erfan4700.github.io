@@ -6,28 +6,26 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // کنترل‌های زیرنویس
     const subDirectionSelect = document.getElementById('sub-direction');
-    const subColorInput = document.getElementById('sub-color');
+    const subColorSelect = document.getElementById('sub-color-select');
+    const subColorCustom = document.getElementById('sub-color-custom');
     const subBgColorSelect = document.getElementById('sub-bg-color');
+    const fileNameSpan = document.getElementById('file-name');
     
     let player;
 
     function initializePlayer() {
-        // اگر پلیری از قبل وجود دارد، آن را از بین ببر
         if (player) {
             player.dispose();
         }
 
-        // یک تگ ویدیوی جدید بساز تا تنظیمات قبلی پاک شود
-        videoContainer.innerHTML = '<video id="my-video" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto"></video>';
+        videoContainer.innerHTML = '<video id="my-video" class="video-js vjs-big-play-centered" controls preload="auto"></video>';
         
         const videoElement = document.getElementById('my-video');
         
-        // --- تغییر اصلی اینجاست ---
-        // ما بخش مربوط به پلاگین "ass" را از تنظیمات اولیه حذف کردیم
-        // چون این پلاگین به صورت خودکار خودش را ثبت می‌کند.
+        // --- اضافه کردن سرعت‌های پخش جدید ---
         player = videojs(videoElement, {
-            fluid: true, // برای واکنش‌گرا بودن پلیر
-            playbackRates: [0.5, 1, 1.5, 2], // گزینه‌های سرعت پخش
+            fluid: true,
+            playbackRates: [0.25, 0.5, 0.75, 1, 1.5, 2, 2.25, 2.5, 2.75, 3, 4],
         });
     }
 
@@ -45,13 +43,8 @@ document.addEventListener('DOMContentLoaded', function() {
         let videoType;
         if (videoUrl.endsWith('.m3u8')) {
             videoType = 'application/x-mpegURL';
-        } else if (videoUrl.endsWith('.mp4')) {
-            videoType = 'video/mp4';
-        } else if (videoUrl.endsWith('.mkv')) {
-            // مرورگرها MKV را معمولاً به عنوان webm یا mp4 پخش می‌کنند.
-            // به Video.js اجازه می‌دهیم خودش تشخیص دهد.
-            videoType = 'video/mp4';
         } else {
+            // اجازه دهید Video.js نوع را تشخیص دهد
             videoType = 'video/mp4'; 
         }
         
@@ -75,7 +68,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     subtitleBlob = new Blob([fileContent], { type: 'text/vtt' });
                     kind = 'subtitles';
                 } else if (fileExtension === 'ass') {
-                    // حالا که پلیر به درستی ساخته شده، می‌توانیم از متد .ass() استفاده کنیم
                     player.ready(function() {
                         this.ass({
                             src: URL.createObjectURL(new Blob([fileContent], { type: 'text/plain' })),
@@ -110,25 +102,48 @@ document.addEventListener('DOMContentLoaded', function() {
         const cues = srtText.split('\n\n');
         cues.forEach(cue => {
             const parts = cue.split('\n');
-            if (parts.length >= 2) {
-                // اطمینان از اینکه خط زمان معتبر است
-                if (parts[1].includes('-->')) {
-                    const time = parts[1].replace(/,/g, '.');
-                    const text = parts.slice(2).join('\n');
-                    vttText += `${time}\n${text}\n\n`;
-                }
+            if (parts.length >= 2 && parts[1].includes('-->')) {
+                const time = parts[1].replace(/,/g, '.');
+                const text = parts.slice(2).join('\n');
+                vttText += `${time}\n${text}\n\n`;
             }
         });
         return vttText;
     }
 
-    // اعمال تغییرات استایل زیرنویس
+    // --- منطق جدید برای کنترل‌های زیرنویس ---
+
+    // نمایش نام فایل انتخاب شده
+    subtitleFileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            fileNameSpan.textContent = this.files[0].name;
+            fileNameSpan.style.color = '#e0e0e0';
+        } else {
+            fileNameSpan.textContent = 'انتخاب فایل...';
+            fileNameSpan.style.color = '#c0c0c0';
+        }
+    });
+
+    // تنظیم جهت متن
     subDirectionSelect.addEventListener('change', (e) => {
         document.documentElement.style.setProperty('--sub-direction', e.target.value);
     });
-    subColorInput.addEventListener('input', (e) => {
-        document.documentElement.style.setProperty('--sub-text-color', e.target.value);
+
+    // منطق جدید برای انتخاب رنگ متن
+    subColorSelect.addEventListener('change', function() {
+        if (this.value === 'custom') {
+            subColorCustom.classList.remove('hidden');
+            subColorCustom.click(); // باز کردن خودکار پالت رنگ
+        } else {
+            subColorCustom.classList.add('hidden');
+            document.documentElement.style.setProperty('--sub-text-color', this.value);
+        }
     });
+    subColorCustom.addEventListener('input', function() {
+        document.documentElement.style.setProperty('--sub-text-color', this.value);
+    });
+
+    // تنظیم رنگ پس‌زمینه
     subBgColorSelect.addEventListener('change', (e) => {
         document.documentElement.style.setProperty('--sub-bg-color', e.target.value);
     });
