@@ -11,7 +11,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>پخش آنلاین ویدیو با زیرنویس</h1>
+        <h1>پخش آنلاین ویدیو</h1>
         <p>لینک مستقیم ویدیو و فایل زیرنویس را وارد کرده و روی دکمه "پخش" کلیک کنید.</p>
 
         <div class="input-section">
@@ -19,49 +19,64 @@
                 <label for="video-url">لینک مستقیم ویدیو (MP4, TS, MKV):</label>
                 <input type="url" id="video-url" placeholder="https.example.com/video.mp4" dir="ltr">
             </div>
+            
+            <!-- دکمه آپلود فایل زیرنویس با طراحی جدید -->
             <div class="input-group">
                 <label for="subtitle-file">فایل زیرنویس (SRT, VTT, ASS):</label>
-                <input type="file" id="subtitle-file" accept=".srt,.vtt,.ass">
+                <div class="custom-file-upload">
+                    <input type="file" id="subtitle-file" accept=".srt,.vtt,.ass">
+                    <label for="subtitle-file" class="file-label">
+                        <span id="file-name">انتخاب فایل...</span>
+                    </label>
+                </div>
             </div>
+
             <button id="load-button">پخش ویدیو</button>
         </div>
 
         <div id="player-container">
-            <video id="my-video" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" width="640" height="360">
-            </video>
+            <video id="my-video" class="video-js vjs-big-play-centered" controls preload="auto"></video>
         </div>
 
+        <!-- کنترل‌های جدید و مدرن برای زیرنویس -->
         <div class="subtitle-controls">
             <h2>تنظیمات زیرنویس</h2>
-            <div class="control-group">
-                <label for="sub-direction">جهت متن:</label>
-                <select id="sub-direction">
-                    <option value="rtl" selected>راست به چپ</option>
-                    <option value="ltr">چپ به راست</option>
-                </select>
-            </div>
-            <div class="control-group">
-                <label for="sub-color">رنگ متن:</label>
-                <input type="color" id="sub-color" value="#FFFFFF">
-            </div>
-            <div class="control-group">
-                <label for="sub-bg-color">رنگ پس‌زمینه:</label>
-                <select id="sub-bg-color">
-                    <option value="transparent" selected>بدون پس‌زمینه</option>
-                    <option value="rgba(255, 255, 255, 0.8)">سفید</option>
-                    <option value="rgba(0, 0, 0, 0.8)">مشکی</option>
-                    <option value="rgba(0, 0, 0, 0.5)">مشکی کم‌رنگ</option>
-                </select>
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label for="sub-direction">جهت متن:</label>
+                    <select id="sub-direction">
+                        <option value="rtl" selected>راست به چپ</option>
+                        <option value="ltr">چپ به راست</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="sub-color-select">رنگ متن:</label>
+                    <select id="sub-color-select">
+                        <option value="#FFFFFF" selected>سفید</option>
+                        <option value="#000000">مشکی</option>
+                        <option value="#FF0000">قرمز</option>
+                        <option value="#00FF00">سبز</option>
+                        <option value="custom">رنگ دلخواه...</option>
+                    </select>
+                    <input type="color" id="sub-color-custom" value="#FFFFFF" class="hidden">
+                </div>
+                <div class="control-group">
+                    <label for="sub-bg-color">رنگ پس‌زمینه:</label>
+                    <select id="sub-bg-color">
+                        <option value="transparent" selected>شفاف (بدون پس‌زمینه)</option>
+                        <option value="rgba(0, 0, 0, 0.75)">مشکی شفاف</option>
+                        <option value="rgba(0, 0, 0, 1)">مشکی</option>
+                        <option value="rgba(255, 255, 255, 0.9)">سفید</option>
+                    </select>
+                </div>
             </div>
         </div>
 
     </div>
 
-    <!-- Video.js JS -->
+    <!-- کتابخانه‌های JS -->
     <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
-    <!-- Video.js plugin for HLS (for .ts files) -->
     <script src="https://unpkg.com/videojs-contrib-hls/dist/videojs-contrib-hls.js"></script>
-    <!-- Video.js plugin for .ass subtitles -->
     <script src="https://cdn.jsdelivr.net/npm/videojs-ass/dist/videojs-ass.min.js"></script>
     <!-- اسکریپت سفارشی -->
     <script src="script.js"></script>
