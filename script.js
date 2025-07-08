@@ -21,12 +21,13 @@ document.addEventListener('DOMContentLoaded', function() {
         videoContainer.innerHTML = '<video id="my-video" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto"></video>';
         
         const videoElement = document.getElementById('my-video');
+        
+        // --- تغییر اصلی اینجاست ---
+        // ما بخش مربوط به پلاگین "ass" را از تنظیمات اولیه حذف کردیم
+        // چون این پلاگین به صورت خودکار خودش را ثبت می‌کند.
         player = videojs(videoElement, {
             fluid: true, // برای واکنش‌گرا بودن پلیر
             playbackRates: [0.5, 1, 1.5, 2], // گزینه‌های سرعت پخش
-            plugins: {
-                ass: {} // فعال کردن پلاگین زیرنویس ASS
-            }
         });
     }
 
@@ -41,17 +42,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
         initializePlayer();
 
-        // تعیین نوع ویدیو بر اساس پسوند
         let videoType;
         if (videoUrl.endsWith('.m3u8')) {
-            videoType = 'application/x-mpegURL'; // for HLS (TS streams)
+            videoType = 'application/x-mpegURL';
         } else if (videoUrl.endsWith('.mp4')) {
             videoType = 'video/mp4';
         } else if (videoUrl.endsWith('.mkv')) {
-            videoType = 'video/webm'; // مرورگرها MKV را گاهی با نوع webm پخش می‌کنند
-        } else {
-            // برای فرمت‌های دیگر، نوع را خالی بگذار تا مرورگر خودش تشخیص دهد
+            // مرورگرها MKV را معمولاً به عنوان webm یا mp4 پخش می‌کنند.
+            // به Video.js اجازه می‌دهیم خودش تشخیص دهد.
             videoType = 'video/mp4';
+        } else {
+            videoType = 'video/mp4'; 
         }
         
         player.src({ src: videoUrl, type: videoType });
@@ -64,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const fileExtension = subtitleFile.name.split('.').pop().toLowerCase();
                 let subtitleBlob, subtitleUrl, kind, label;
 
-                label = subtitleFile.name.replace(/\.[^/.]+$/, ""); // نام فایل بدون پسوند
+                label = subtitleFile.name.replace(/\.[^/.]+$/, ""); 
 
                 if (fileExtension === 'srt') {
                     const vttContent = srtToVtt(fileContent);
@@ -74,13 +75,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     subtitleBlob = new Blob([fileContent], { type: 'text/vtt' });
                     kind = 'subtitles';
                 } else if (fileExtension === 'ass') {
-                     // پلاگین videojs-ass مستقیماً با محتوای فایل کار می‌کند
-                    player.ass({
-                        src: URL.createObjectURL(new Blob([fileContent], { type: 'text/plain' })),
-                        label: label
+                    // حالا که پلیر به درستی ساخته شده، می‌توانیم از متد .ass() استفاده کنیم
+                    player.ready(function() {
+                        this.ass({
+                            src: URL.createObjectURL(new Blob([fileContent], { type: 'text/plain' })),
+                            label: label
+                        });
                     });
                     player.play();
-                    return; // چون پلاگین ASS خودش کار را انجام می‌دهد
+                    return; 
                 } else {
                     alert('فرمت زیرنویس پشتیبانی نمی‌شود.');
                     return;
@@ -88,13 +91,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 subtitleUrl = URL.createObjectURL(subtitleBlob);
 
-                // اضافه کردن ترک زیرنویس به پلیر
                 player.addRemoteTextTrack({
                     kind: kind,
                     language: 'fa',
                     label: label,
                     src: subtitleUrl
-                }, true); // `true` باعث می‌شود این ترک به صورت پیش‌فرض انتخاب شود
+                }, true);
             };
             reader.readAsText(subtitleFile, 'UTF-8');
         }
@@ -102,18 +104,19 @@ document.addEventListener('DOMContentLoaded', function() {
         player.play();
     }
     
-    // تابع تبدیل SRT به VTT
     function srtToVtt(srtText) {
         let vttText = "WEBVTT\n\n";
-        // پاک کردن کاراکترهای اضافی و نرمال‌سازی خطوط
         srtText = srtText.replace(/\r+/g, '').replace(/^\s+|\s+$/g, '');
         const cues = srtText.split('\n\n');
         cues.forEach(cue => {
             const parts = cue.split('\n');
             if (parts.length >= 2) {
-                const time = parts[1].replace(/,/g, '.');
-                const text = parts.slice(2).join('\n');
-                vttText += `${time}\n${text}\n\n`;
+                // اطمینان از اینکه خط زمان معتبر است
+                if (parts[1].includes('-->')) {
+                    const time = parts[1].replace(/,/g, '.');
+                    const text = parts.slice(2).join('\n');
+                    vttText += `${time}\n${text}\n\n`;
+                }
             }
         });
         return vttText;
@@ -129,5 +132,4 @@ document.addEventListener('DOMContentLoaded', function() {
     subBgColorSelect.addEventListener('change', (e) => {
         document.documentElement.style.setProperty('--sub-bg-color', e.target.value);
     });
-
 });
