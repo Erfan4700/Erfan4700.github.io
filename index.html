@@ -16,7 +16,7 @@
 
         <div class="input-section">
             <div class="input-group">
-                <label for="video-url">لینک مستقیم ویدیو (MP4, M3U8):</label>
+                <label for="video-url">لینک مستقیم ویدیو (MP4, m3u8, ...):</label>
                 <input type="url" id="video-url" placeholder="https://example.com/video.mp4" dir="ltr">
             </div>
 
@@ -33,12 +33,11 @@
             <button id="load-button">پخش ویدیو</button>
         </div>
 
-        <!-- محفظه پلیر برای Plyr -->
         <div id="player-container">
+            <!-- تگ ویدیو برای Plyr آماده شده است -->
             <video id="my-video" controls playsinline></video>
         </div>
 
-        <!-- کنترل‌های جدید و مدرن برای زیرنویس -->
         <div class="subtitle-controls">
             <h2>تنظیمات زیرنویس</h2>
             <div class="controls-grid">
@@ -62,24 +61,23 @@
                 <div class="control-group">
                     <label for="sub-bg-color">رنگ پس‌زمینه:</label>
                     <select id="sub-bg-color">
-                        <option value="rgba(0, 0, 0, 0.7)" selected>مشکی شفاف</option>
+                        <option value="rgba(0, 0, 0, 0.7)" selected>مشکی نیمه‌شفاف</option>
                         <option value="transparent">شفاف (بدون پس‌زمینه)</option>
                         <option value="rgba(0, 0, 0, 1)">مشکی</option>
                         <option value="rgba(255, 255, 255, 0.9)">سفید</option>
                     </select>
                 </div>
-                <!-- اسلایدر جدید برای اندازه فونت -->
-                <div class="control-group font-size-control">
-                    <label for="sub-font-size">اندازه فونت: <span id="font-size-value">22</span>px</label>
-                    <input type="range" id="sub-font-size" min="14" max="40" value="22" class="font-size-slider">
-                </div>
+            </div>
+             <!-- اسلایدر جدید برای اندازه فونت -->
+            <div class="control-group-full">
+                <label for="sub-font-size">اندازه فونت: <span id="font-size-value">22</span>px</label>
+                <input type="range" id="sub-font-size" min="14" max="40" value="22" class="font-slider">
             </div>
         </div>
-
     </div>
 
     <!-- کتابخانه‌های JS -->
-    <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <!-- اسکریپت سفارشی -->
     <script src="script.js"></script>
