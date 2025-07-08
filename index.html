@@ -17,7 +17,7 @@
         <div class="input-section">
             <div class="input-group">
                 <label for="video-url">لینک مستقیم ویدئو (MP4, M3U8):</label>
-                <input type="url" id="video-url" placeholder="https.example.com/video.mp4" dir="ltr">
+                <input type="url" id="video-url" placeholder="https://example.com/video.mp4" dir="ltr">
             </div>
             
             <button id="load-button">پخش ویدئو</button>
@@ -40,11 +40,14 @@
                 <input type="file" id="subtitle-file" accept=".srt,.vtt">
             </div>
 
+            <!-- چیدمان جدید کنترل‌ها -->
             <div class="controls-grid">
-                 <div class="control-group">
+                 <!-- اندازه فونت (تمام عرض) -->
+                <div class="control-group full-width">
                     <label for="sub-font-size">اندازه فونت: <span id="font-size-value">22px</span></label>
                     <input type="range" id="sub-font-size" min="14" max="40" value="22" class="slider">
                 </div>
+                 <!-- جهت و رنگ متن در یک ردیف -->
                 <div class="control-group">
                     <label for="sub-direction">جهت متن:</label>
                     <select id="sub-direction">
@@ -65,11 +68,12 @@
                         <input type="color" id="sub-color-custom" value="#FFFFFF" class="hidden">
                     </div>
                 </div>
+                 <!-- رنگ پس‌زمینه -->
                 <div class="control-group">
                     <label for="sub-bg-color">رنگ پس‌زمینه:</label>
                     <select id="sub-bg-color">
-                        <option value="transparent" selected>شفاف</option>
-                        <option value="rgba(0, 0, 0, 0.75)">مشکی شفاف</option>
+                        <option value="transparent">شفاف</option>
+                        <option value="rgba(0, 0, 0, 0.75)" selected>مشکی شفاف</option>
                         <option value="rgba(0, 0, 0, 1)">مشکی</option>
                         <option value="rgba(255, 255, 255, 0.9)">سفید</option>
                     </select>
