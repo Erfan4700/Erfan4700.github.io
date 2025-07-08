@@ -1,7 +1,8 @@
 :root {
     --sub-text-color: #FFFFFF;
-    --sub-bg-color: transparent;
+    --sub-bg-color: rgba(0, 0, 0, 0.75);
     --sub-direction: rtl;
+    --sub-font-size: 22px; /* اندازه فونت پیش‌فرض */
 }
 
 body {
@@ -30,11 +31,7 @@ h1, h2 {
     font-weight: 600;
 }
 
-h1 {
-    font-size: 2rem;
-    margin-bottom: 10px;
-}
-
+h1 { font-size: 2rem; margin-bottom: 10px; }
 h2 {
     font-size: 1.5rem;
     margin-top: 0;
@@ -42,13 +39,7 @@ h2 {
     padding-bottom: 10px;
     border-bottom: 1px solid #444;
 }
-
-p {
-    text-align: center;
-    color: #a0a0a0;
-    margin-bottom: 40px;
-    font-size: 1.1rem;
-}
+p { text-align: center; color: #a0a0a0; margin-bottom: 40px; font-size: 1.1rem; }
 
 .input-section {
     display: flex;
@@ -56,14 +47,7 @@ p {
     gap: 20px;
     margin-bottom: 40px;
 }
-
-.input-group label {
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: #c0c0c0;
-    display: block;
-}
-
+.input-group label { margin-bottom: 8px; font-weight: 500; color: #c0c0c0; display: block; }
 input[type="url"], select {
     width: 100%;
     padding: 12px;
@@ -75,38 +59,15 @@ input[type="url"], select {
     font-size: 1rem;
     transition: border-color 0.3s, box-shadow 0.3s;
 }
-
 input[type="url"]:focus, select:focus {
     outline: none;
-    border-color: #4dabf7;
-    box-shadow: 0 0 0 3px rgba(77, 171, 247, 0.3);
+    border-color: #00bfff;
+    box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.3);
 }
 
-/* استایل مدرن برای دکمه آپلود فایل */
-.custom-file-upload input[type="file"] {
-    display: none; /* مخفی کردن دکمه پیش‌فرض */
-}
-.custom-file-upload .file-label {
-    display: block;
-    padding: 12px;
-    background-color: #3b3b3b;
-    border: 1px solid #555;
-    border-radius: 8px;
-    cursor: pointer;
-    text-align: right;
-    transition: background-color 0.3s;
-}
-.custom-file-upload .file-label:hover {
-    background-color: #4a4a4a;
-}
-#file-name {
-    color: #c0c0c0;
-}
-
-/* دکمه اصلی */
 #load-button {
     padding: 14px 20px;
-    background: linear-gradient(90deg, #4dabf7, #2a6db5);
+    background: linear-gradient(90deg, #00bfff, #1e90ff);
     color: white;
     border: none;
     border-radius: 8px;
@@ -117,58 +78,102 @@ input[type="url"]:focus, select:focus {
 }
 #load-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(77, 171, 247, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 191, 255, 0.2);
 }
 
 #player-container {
     width: 100%;
     margin-bottom: 30px;
 }
-.video-js {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 450px;
-    border-radius: 8px;
-    overflow: hidden; /* برای گرد شدن گوشه‌ها */
+
+/* استایل‌های سفارشی برای Plyr */
+:root {
+    --plyr-color-main: #1e90ff;
 }
 
-/* بخش کنترل‌های زیرنویس */
+/* --- مهم: حل مشکل پس‌زمینه و استایل زیرنویس --- */
+.plyr--captions-active .plyr__caption {
+    background: var(--sub-bg-color) !important;
+    color: var(--sub-text-color) !important;
+    direction: var(--sub-direction) !important;
+    font-size: var(--sub-font-size) !important;
+    padding: 0.2em 0.5em;
+    border-radius: 6px;
+}
+
+/* کنترل‌های زیرنویس */
+.subtitle-controls {
+    margin-top: 20px;
+}
 .controls-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
+    align-items: end;
 }
-.control-group {
-    display: flex;
-    flex-direction: column;
-}
-.control-group label {
-    font-size: 0.9rem;
-}
-.hidden {
-    display: none;
-}
+.control-group label { font-size: 0.9rem; }
+.hidden { display: none; }
+.color-picker-wrapper { display: flex; gap: 5px; }
+.color-picker-wrapper select { flex-grow: 1; }
+
 input[type="color"] {
-    width: 100%;
+    min-width: 48px;
     height: 48px;
     padding: 5px;
     border-radius: 8px;
     border: 1px solid #555;
     cursor: pointer;
-    margin-top: 8px;
+    background-color: #3b3b3b;
 }
 
-/* --- مهم: حل مشکل پس‌زمینه زیرنویس --- */
-.video-js .vjs-text-track-display {
-    /* این انتخابگر دقیق، استایل‌های پیش‌فرض را لغو می‌کند */
-    background-color: transparent !important;
+/* استایل مدرن برای دکمه آپلود فایل */
+.file-upload-group {
+    margin-bottom: 20px;
 }
-.video-js .vjs-text-track-display div {
-    background: var(--sub-bg-color) !important;
-    color: var(--sub-text-color) !important;
-    direction: var(--sub-direction) !important;
-    unicode-bidi: embed;
-    font-size: 1.8em; /* می‌توانید اندازه فونت را هم تنظیم کنید */
-    padding: 0.1em 0.3em;
-    border-radius: 4px;
+.file-upload-group input[type="file"] {
+    display: none;
+}
+.file-upload-group .file-label {
+    display: block;
+    padding: 15px;
+    background-color: #3b3b3b;
+    border: 2px dashed #555;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s, border-color 0.3s;
+    color: #c0c0c0;
+}
+.file-upload-group .file-label:hover {
+    background-color: #4a4a4a;
+    border-color: var(--plyr-color-main);
+}
+
+/* استایل اسلایدر اندازه فونت */
+.slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    background: #555;
+    border-radius: 5px;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity .2s;
+    cursor: pointer;
+}
+.slider:hover { opacity: 1; }
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--plyr-color-main);
+    border-radius: 50%;
+}
+.slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--plyr-color-main);
+    border-radius: 50%;
 }
